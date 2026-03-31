@@ -413,6 +413,24 @@
     }
   }
 
+  function navigateToSibling(dir) {
+    if (selectedElements.length !== 1) return;
+    const el = selectedElements[0];
+    const parent = el.parentElement;
+    if (!parent) return;
+    const siblings = Array.from(parent.children).filter(
+      c => !isEditorElement(c) && isVisible(c) && isMeaningful(c)
+    );
+    const idx = siblings.indexOf(el);
+    const next = siblings[idx + dir];
+    if (next) {
+      pushHistory();
+      clearSelection();
+      addSelection(next);
+      updateTags();
+    }
+  }
+
 
   function handleKeyDown(e) {
     if (isEditorElement(e.target) && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
@@ -441,6 +459,16 @@
     if (e.key === "ArrowDown" && selectedElements.length === 1) {
       e.preventDefault();
       navigateToChild();
+      return;
+    }
+    if (e.key === "ArrowLeft" && selectedElements.length === 1) {
+      e.preventDefault();
+      navigateToSibling(-1);
+      return;
+    }
+    if (e.key === "ArrowRight" && selectedElements.length === 1) {
+      e.preventDefault();
+      navigateToSibling(1);
       return;
     }
     if (e.key === " " && !mod && !e.altKey) {
@@ -555,7 +583,7 @@
         <div class="${NS}-shortcuts">
           <span><kbd>Click</kbd> Select</span>
           <span><kbd>Shift</kbd> Multi</span>
-          <span><kbd>\u2191\u2193</kbd> Navigate</span>
+          <span><kbd>\u2190\u2191\u2192\u2193</kbd> Navigate</span>
           <span><kbd>Space</kbd> Pause</span>
           <span><kbd>\u2318C</kbd> Copy</span>
           <span><kbd>\u2318Z</kbd> Undo</span>
@@ -696,16 +724,16 @@
   function buildPromptText() {
     if (selectedElements.length === 0) return "";
 
-    const lines = [location.pathname, ""];
+    const lines = ["Page: " + location.pathname, ""];
     selectedElements.forEach((el, i) => {
       const ctx = buildElementContext(el, i + 1);
       lines.push(`${i + 1}. ${elementLabel(el)} <${ctx.tag}>`);
+      if (ctx.selector)  lines.push(`   selector: ${ctx.selector}`);
       if (ctx.source)    lines.push(`   source: ${ctx.source}`);
       if (ctx.react)     lines.push(`   react: ${ctx.react}`);
-      if (ctx.nearestId) lines.push(`   inside: ${ctx.nearestId}`);
       if (ctx.text)      lines.push(`   text: "${ctx.text}"`);
       Object.entries(ctx.dataAttrs).forEach(([k, v]) => lines.push(`   ${k}: ${v}`));
-      if (!ctx.react && ctx.outerHTML) lines.push(`   html: ${ctx.outerHTML.slice(0, 120)}`);
+      if (ctx.outerHTML)  lines.push(`   html: ${ctx.outerHTML}`);
 
       const aiId = el.getAttribute(AI_ID);
       const note = annotations.get(aiId);
@@ -791,15 +819,6 @@
     }
   }
 
-  function getFallbackContext(el) {
-    let node = el.parentElement;
-    while (node && node !== document.body) {
-      if (node.id) return { nearestId: `#${node.id}` };
-      node = node.parentElement;
-    }
-    return {};
-  }
-
   // ── Element context ────────────────────────────────────────
   function buildElementContext(el, index) {
     const dataAttrs = {};
@@ -820,7 +839,6 @@
       outerHTML: el.outerHTML.slice(0, 200),
       dataAttrs,
       ...reactInfo,
-      ...(isReact ? {} : getFallbackContext(el)),
     };
   }
 

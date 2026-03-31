@@ -19,10 +19,10 @@
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
   .status{display:flex;align-items:center;margin-bottom:32px;font-size:11px;color:#404040;letter-spacing:.1em;text-transform:uppercase}
   h1{font-size:20px;font-weight:500;color:#fff;margin-bottom:6px;letter-spacing:-.02em}
-  .sub{font-size:12px;color:#404040;margin-bottom:44px;line-height:1.6}
+  .sub{font-size:12px;color:#505050;margin-bottom:44px;line-height:1.6}
   .steps{display:flex;flex-direction:column;gap:32px}
   .step{display:flex;gap:20px}
-  .num{font-size:11px;color:#2a2a2a;width:16px;flex-shrink:0;padding-top:1px}
+  .num{font-size:11px;color:#444;width:16px;flex-shrink:0;padding-top:1px}
   .step-body{flex:1}
   .step-title{font-size:12px;color:#888;margin-bottom:10px}
   .bm{
@@ -81,9 +81,9 @@ document.addEventListener("DOMContentLoaded", function () {
 </head>
 <body>
 <div class="wrap">
-  <div class="status"><span class="dot"></span>ready</div>
+  <div class="status"><span class="dot"></span>install</div>
   <h1>Selector</h1>
-  <p class="sub">Visual element picker for any web page.<br>Select elements, annotate instructions, copy prompt — paste into your AI.</p>
+  <p class="sub">Point at any element. Tell your AI what to change.</p>
   <div class="steps">
     <div class="step">
       <span class="num">01</span>
@@ -97,18 +97,17 @@ document.addEventListener("DOMContentLoaded", function () {
     <div class="step">
       <span class="num">02</span>
       <div class="step-body">
-        <div class="step-title">Open any page, click the bookmark</div>
-        <p class="note"><code>localhost:3000</code> &middot; React &middot; Next.js &middot; any URL</p>
+        <div class="step-title">Click the bookmark on any page</div>
+        <p class="note">Works everywhere &mdash; <code>localhost</code> &middot; React &middot; Next.js &middot; production URLs</p>
       </div>
     </div>
     <div class="step">
       <span class="num">03</span>
       <div class="step-body">
-        <div class="step-title">Select &middot; annotate &middot; copy</div>
+        <div class="step-title">Select &rarr; Copy &rarr; Paste into your AI</div>
         <p class="note">
-          Click to select &middot; Shift+click to multi-select &middot; Drag to marquee select<br>
-          Click <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> on elements to add per-element instructions<br>
-          <span class="kbd">&#8984;C</span> or <b>Copy Prompt</b> &rarr; paste into Claude / ChatGPT
+          <span class="kbd">&#8984;C</span> copies a structured prompt with element metadata<br>
+          Paste into Claude Code &middot; Codex &middot; Cursor &middot; any AI assistant
         </p>
       </div>
     </div>
