@@ -237,6 +237,22 @@
   color: #bbb;
   letter-spacing: 0.03em;
   user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-editor-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  flex-shrink: 0;
+  transition: background 200ms;
+}
+
+.ai-editor-status-label {
+  color: #bbb;
 }
 
 .ai-editor-panel-actions {
@@ -399,4 +415,33 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
+}
+
+/* ── Shortcuts hint ─────────────────────────────────────── */
+.ai-editor-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding: 6px 10px;
+  font-size: 10px;
+  color: #999;
+}
+
+.ai-editor-shortcuts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.ai-editor-shortcuts kbd {
+  display: inline-block;
+  background: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  padding: 0 4px;
+  font-size: 9px;
+  font-family: inherit;
+  color: #666;
+  line-height: 1.6;
 }

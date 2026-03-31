@@ -17,6 +17,7 @@
   let rafPending = false;
   let lastMoveTarget = null;
   let minimized = false;
+  let paused = false;
   const selOverlays = new Map();
   const annotations = new Map();
   const listeners = [];
@@ -137,7 +138,7 @@
 
   // ── Mouse handling ─────────────────────────────────────────
   function handleMouseMove(e) {
-    if (minimized) return;
+    if (minimized || paused) return;
 
     if (dragState) {
       const dx = e.clientX - dragState.startX;
@@ -171,7 +172,7 @@
 
   function handleMouseDown(e) {
     if (isEditorElement(e.target)) return;
-    if (minimized) return;
+    if (minimized || paused) return;
     if (e.button !== 0) return;
     if (e.shiftKey) e.preventDefault();
 
@@ -220,7 +221,7 @@
 
   function handleClick(e) {
     if (isEditorElement(e.target)) return;
-    if (minimized) return;
+    if (minimized || paused) return;
     if (wasJustDragging) return;
 
     e.preventDefault();
@@ -369,6 +370,19 @@
       e.preventDefault();
       copyPrompt();
     }
+    if (e.key === " " && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      e.preventDefault();
+      togglePaused();
+    }
+  }
+
+  function togglePaused() {
+    paused = !paused;
+    showHover(null);
+    const dot = chatPanel.querySelector(`.${NS}-status-dot`);
+    const label = chatPanel.querySelector(`.${NS}-status-label`);
+    if (dot) dot.style.background = paused ? "#888" : "#4ade80";
+    if (label) label.textContent = paused ? "Paused" : "Selecting";
   }
 
   // ── Annotation popover ─────────────────────────────────────
@@ -445,7 +459,10 @@
     chatPanel.className = `${NS}-root ${NS}-chat`;
     chatPanel.innerHTML = `
       <div class="${NS}-drag-handle">
-        <span class="${NS}-drag-title">Selector</span>
+        <span class="${NS}-drag-title">
+          <span class="${NS}-status-dot"></span>
+          <span class="${NS}-status-label">Selecting</span>
+        </span>
         <div class="${NS}-panel-actions">
           <button class="${NS}-panel-btn" data-action="minimize" title="Minimize">
             <svg width="10" height="2" viewBox="0 0 10 2" fill="none">
@@ -462,6 +479,14 @@
       </div>
       <div class="${NS}-panel-body">
         <div class="${NS}-chat-tags ${NS}-hidden"></div>
+        <div class="${NS}-shortcuts">
+          <span><kbd>Click</kbd> Select</span>
+          <span><kbd>Shift</kbd> Multi-select</span>
+          <span><kbd>Drag</kbd> Marquee</span>
+          <span><kbd>Space</kbd> Pause</span>
+          <span><kbd>\u2318C</kbd> Copy</span>
+          <span><kbd>Esc</kbd> Clear</span>
+        </div>
         <button class="${NS}-copy-btn" disabled>Copy Prompt</button>
       </div>
     `;

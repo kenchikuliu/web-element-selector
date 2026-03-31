@@ -20,6 +20,7 @@ Open any web page, click the **Selector** bookmark.
 | **✎ button** | Add per-element instruction |
 | **Cmd+C** | Copy prompt to clipboard |
 | **Copy Prompt** | Same, via button |
+| **Space** | Pause / resume selecting |
 | **Esc** | Clear selection |
 
 The copied prompt includes element metadata (tag, selector, text, React component info) plus any per-element instructions you added. Paste it into your AI to make targeted changes.
