@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Selector — Visual Element Picker</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:#0a0a0a;color:#d4d4d4;
+    font-family:'SF Mono',Menlo,Monaco,'Cascadia Code',monospace;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+  }
+  .wrap{max-width:460px;width:100%;padding:48px 32px}
+  .dot{width:6px;height:6px;background:#4ade80;border-radius:50%;
+       display:inline-block;margin-right:8px;
+       animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .status{display:flex;align-items:center;margin-bottom:32px;font-size:11px;color:#404040;letter-spacing:.1em;text-transform:uppercase}
+  h1{font-size:20px;font-weight:500;color:#fff;margin-bottom:6px;letter-spacing:-.02em}
+  .sub{font-size:12px;color:#404040;margin-bottom:44px;line-height:1.6}
+  .steps{display:flex;flex-direction:column;gap:32px}
+  .step{display:flex;gap:20px}
+  .num{font-size:11px;color:#2a2a2a;width:16px;flex-shrink:0;padding-top:1px}
+  .step-body{flex:1}
+  .step-title{font-size:12px;color:#888;margin-bottom:10px}
+  .bm{
+    display:inline-block;padding:10px 22px;
+    background:#fff;color:#0a0a0a;
+    border-radius:6px;text-decoration:none;
+    font-size:13px;font-weight:600;letter-spacing:.02em;
+    cursor:grab;transition:background 120ms;
+  }
+  .bm:hover{background:#e8e8e8}
+  .bm:active{cursor:grabbing}
+  .bm.loading{background:#333;color:#666;cursor:wait}
+  .note{font-size:11px;color:#333;margin-top:8px;line-height:1.6}
+  .err{color:#c06000;font-size:11px;margin-top:12px;display:none}
+  code{background:#141414;color:#555;padding:1px 5px;border-radius:3px;font-size:10px}
+  .kbd{display:inline-block;background:#1a1a1a;border:1px solid #2a2a2a;color:#666;
+       padding:1px 5px;border-radius:3px;font-size:10px;font-family:inherit}
+  .footer{margin-top:48px;padding-top:24px;border-top:1px solid #1a1a1a;
+           font-size:10px;color:#2a2a2a}
+  .footer a{color:#444;text-decoration:none}
+  .footer a:hover{color:#888}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var base = location.href.replace(/[^/]*$/, "");
+  var link = document.getElementById("bm-link");
+
+  Promise.all([
+    fetch(base + "assets/editor.css").then(function (r) { return r.text(); }),
+    fetch(base + "assets/editor.js").then(function (r) { return r.text(); }),
+  ])
+  .then(function (results) {
+    var css = results[0];
+    var js  = results[1];
+
+    var code = "(function(){"
+      + "if(document.querySelector('.ai-editor-root'))return;"
+      + "var s=document.createElement('style');"
+      + "s.textContent=" + JSON.stringify(css) + ";"
+      + "document.head.appendChild(s);"
+      + "var sc=document.createElement('script');"
+      + "sc.textContent=" + JSON.stringify(js) + ";"
+      + "document.head.appendChild(sc);"
+      + "})()";
+
+    link.href = "javascript:" + encodeURIComponent(code);
+    link.classList.remove("loading");
+  })
+  .catch(function () {
+    document.getElementById("bm-err").style.display = "block";
+    link.classList.remove("loading");
+  });
+});
+</script>
+</head>
+<body>
+<div class="wrap">
+  <div class="status"><span class="dot"></span>ready</div>
+  <h1>Selector</h1>
+  <p class="sub">Visual element picker for any web page.<br>Select elements, annotate instructions, copy prompt — paste into your AI.</p>
+  <div class="steps">
+    <div class="step">
+      <span class="num">01</span>
+      <div class="step-body">
+        <div class="step-title">Drag to bookmarks bar</div>
+        <a class="bm loading" id="bm-link" href="#">Selector</a>
+        <p class="note">one-time setup</p>
+        <p class="err" id="bm-err">Failed to load assets. Make sure this page is served over HTTP(S).</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="num">02</span>
+      <div class="step-body">
+        <div class="step-title">Open any page, click the bookmark</div>
+        <p class="note"><code>localhost:3000</code> &middot; React &middot; Next.js &middot; any URL</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="num">03</span>
+      <div class="step-body">
+        <div class="step-title">Select &middot; annotate &middot; copy</div>
+        <p class="note">
+          Click to select &middot; Shift+click to multi-select &middot; Drag to marquee select<br>
+          Click <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> on elements to add per-element instructions<br>
+          <span class="kbd">&#8984;C</span> or <b>Copy Prompt</b> &rarr; paste into Claude / ChatGPT
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <a href="https://github.com/anthropics/selector" target="_blank">GitHub</a>
+  </div>
+</div>
+</body>
+</html>
