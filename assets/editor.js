@@ -26,6 +26,7 @@
   let dragState = null;
   let wasJustDragging = false;
   let activePopover = null;
+  let globalInstruction = "";
   const selectionHistory = [];
 
   function on(target, type, fn, capture) {
@@ -592,6 +593,10 @@
     }
   }
 
+  function updateGlobalInstruction(value) {
+    globalInstruction = (value || "").trim();
+  }
+
   // ── Chat panel ─────────────────────────────────────────────
   function createChatPanel() {
     chatPanel = document.createElement("div");
@@ -625,6 +630,15 @@
             <button class="${NS}-mode-btn" data-mode="full" aria-pressed="false">Full</button>
           </div>
         </div>
+        <div class="${NS}-prompt-wrap">
+          <label class="${NS}-prompt-label" for="${NS}-prompt-input">Task</label>
+          <textarea
+            id="${NS}-prompt-input"
+            class="${NS}-prompt-input"
+            rows="2"
+            placeholder="Describe what to change for the selected area..."
+          ></textarea>
+        </div>
         <div class="${NS}-shortcuts">
           <span><kbd>Click</kbd> Select</span>
           <span><kbd>Shift</kbd> Multi</span>
@@ -645,6 +659,9 @@
         e.stopPropagation();
         setExportMode(btn.dataset.mode);
       };
+    });
+    chatPanel.querySelector(`.${NS}-prompt-input`).addEventListener("input", (e) => {
+      updateGlobalInstruction(e.target.value);
     });
 
     chatPanel.querySelector('[data-action="minimize"]').onclick = toggleMinimize;
@@ -776,19 +793,26 @@
     if (selectedElements.length === 0) return "";
 
     const lines = [
-      "Page: " + location.pathname,
-      "Export: " + exportMode,
+      "Task",
+      globalInstruction || "Update the selected UI region.",
+      "",
+      "Page Context",
+      `- Path: ${location.pathname}`,
+      `- Export mode: ${exportMode}`,
       exportMode === "safe"
-        ? "Note: text, html, and data-* attributes are omitted in Safe mode."
-        : "Note: Full mode may include page text, html, and data-* attributes.",
+        ? "- Privacy: text, html, and data-* attributes are omitted."
+        : "- Privacy: includes text, html, and data-* attributes when available.",
+      "",
+      "Selected Elements",
+      "Use these exact targets when making changes:",
       "",
     ];
     selectedElements.forEach((el, i) => {
       const ctx = buildElementContext(el, i + 1);
       lines.push(`${i + 1}. ${elementLabel(el)} <${ctx.tag}>`);
-      if (ctx.selector)  lines.push(`   selector: ${ctx.selector}`);
-      if (ctx.source)    lines.push(`   source: ${ctx.source}`);
-      if (ctx.react)     lines.push(`   react: ${ctx.react}`);
+      if (ctx.selector) lines.push(`   selector: ${ctx.selector}`);
+      if (ctx.source) lines.push(`   source: ${ctx.source}`);
+      if (ctx.react) lines.push(`   react: ${ctx.react}`);
       if (ctx.classes.length) lines.push(`   classes: ${ctx.classes.join(" ")}`);
       if (exportMode === "full") {
         if (ctx.text) lines.push(`   text: "${ctx.text}"`);
@@ -800,6 +824,11 @@
       const note = annotations.get(aiId);
       if (note) lines.push(`   instruction: ${note}`);
     });
+    lines.push("");
+    lines.push("Implementation Notes");
+    lines.push("- Keep the change scoped to the selected elements unless the task requires adjacent layout updates.");
+    lines.push("- Preserve existing behavior unless the task explicitly asks for interaction changes.");
+    lines.push("- If source info is present, prefer editing that component instead of patching generated DOM.");
     return lines.join("\n");
   }
 

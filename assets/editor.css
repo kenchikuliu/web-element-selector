@@ -338,6 +338,46 @@
   color: #fff;
 }
 
+/* ── Task prompt ─────────────────────────────────────────── */
+.ai-editor-prompt-wrap {
+  padding: 6px 10px 2px;
+}
+
+.ai-editor-prompt-label {
+  display: block;
+  font-size: 10px;
+  color: #777;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.ai-editor-prompt-input {
+  display: block;
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 9px;
+  font-size: 12px;
+  line-height: 1.45;
+  resize: vertical;
+  min-height: 54px;
+  outline: none;
+  background: #fafafa;
+  color: #1a1a1a;
+  font-family: inherit;
+  transition: border-color 120ms, background 120ms;
+}
+
+.ai-editor-prompt-input:focus {
+  border-color: #111;
+  background: #fff;
+}
+
+.ai-editor-prompt-input::placeholder {
+  color: #aaa;
+}
+
 /* ── Tags ────────────────────────────────────────────────── */
 .ai-editor-chat-tags {
   display: flex;

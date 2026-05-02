@@ -27,13 +27,14 @@ Open any web page, click the **Selector** bookmark.
 | **↑ / ↓** | Navigate to parent / child element |
 | **← / →** | Navigate to previous / next sibling |
 | **✎ button** | Add per-element instruction |
+| **Task box** | Add one overall request for the selected area |
 | **Safe / Full** | Toggle export detail level |
 | **⌘C** | Copy prompt to clipboard |
 | **⌘Z** | Undo last selection change |
 | **Space** | Pause / resume selecting |
 | **Esc** | Clear selection |
 
-The copied prompt always includes structural metadata like tag and selector, plus any per-element instructions you added. `Full` mode also includes text, truncated HTML, and `data-*` attributes.
+The copied prompt is formatted for AI coding tools with a top-level task, page context, selected element targets, and implementation notes. `Full` mode also includes text, truncated HTML, and `data-*` attributes.
 
 ## Example output
 
