@@ -10,6 +10,12 @@
   const NS = "ai-editor";
   const AI_ID = "data-ai-id";
   const STORAGE_KEY = "ai-editor-settings";
+  const PRESET_TASKS = [
+    "Polish this section visually.",
+    "Optimize this area for mobile.",
+    "Improve hierarchy and spacing here.",
+    "Refine this CTA section for clarity.",
+  ];
 
   let selectedElements = [];
   let chatPanel = null;
@@ -21,6 +27,7 @@
   let paused = false;
   let exportMode = "safe";
   let promptTarget = "codex";
+  let contextMode = "focused";
   let domObserver = null;
   const selOverlays = new Map();
   const annotations = new Map();
@@ -112,6 +119,10 @@
     return document.querySelector(`[${AI_ID}="${id}"]`);
   }
 
+  function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+
   function loadSettings() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -120,8 +131,11 @@
       if (saved.exportMode === "safe" || saved.exportMode === "full") {
         exportMode = saved.exportMode;
       }
-      if (["codex", "claude", "cursor", "json"].includes(saved.promptTarget)) {
+      if (["codex", "claude", "cursor", "json", "selector"].includes(saved.promptTarget)) {
         promptTarget = saved.promptTarget;
+      }
+      if (saved.contextMode === "focused" || saved.contextMode === "nearby") {
+        contextMode = saved.contextMode;
       }
       if (typeof saved.globalInstruction === "string") {
         globalInstruction = saved.globalInstruction;
@@ -134,6 +148,7 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         exportMode,
         promptTarget,
+        contextMode,
         globalInstruction,
       }));
     } catch (_) {}
@@ -359,11 +374,15 @@
       ov.corners[i].style.left = pos[i].left + "px";
     }
 
-    ov.label.style.top = (r.top - pad - 20) + "px";
-    ov.label.style.left = (r.left - pad) + "px";
+    const labelTop = clamp(r.top - pad - 20, 6, Math.max(6, window.innerHeight - 24));
+    const labelLeft = clamp(r.left - pad, 6, Math.max(6, window.innerWidth - 160));
+    ov.label.style.top = labelTop + "px";
+    ov.label.style.left = labelLeft + "px";
 
-    ov.annotateBtn.style.top = (r.top - pad - 22) + "px";
-    ov.annotateBtn.style.left = (r.right + pad + 4) + "px";
+    const buttonTop = clamp(r.top - pad - 22, 6, Math.max(6, window.innerHeight - 26));
+    const buttonLeft = clamp(r.right + pad + 4, 6, Math.max(6, window.innerWidth - 26));
+    ov.annotateBtn.style.top = buttonTop + "px";
+    ov.annotateBtn.style.left = buttonLeft + "px";
 
     if (annotations.has(aiId)) {
       ov.annotateBtn.classList.add(`${NS}-has-note`);
@@ -373,7 +392,10 @@
   }
 
   function positionAllOverlays() {
+    const before = selectedElements.length;
+    selectedElements = selectedElements.filter((el) => el && el.isConnected);
     for (const el of selectedElements) positionSelOverlay(el);
+    if (selectedElements.length !== before) updateTags();
   }
 
   function destroySelOverlay(aiId) {
@@ -558,7 +580,7 @@
   }
 
   function setPromptTarget(target) {
-    if (!["codex", "claude", "cursor", "json"].includes(target)) return;
+    if (!["codex", "claude", "cursor", "json", "selector"].includes(target)) return;
     promptTarget = target;
 
     const controls = chatPanel.querySelectorAll(`.${NS}-target-btn`);
@@ -577,7 +599,21 @@
     if (target === "claude") return "Claude Code";
     if (target === "cursor") return "Cursor";
     if (target === "json") return "JSON";
+    if (target === "selector") return "Selectors";
     return "Codex";
+  }
+
+  function setContextMode(mode) {
+    if (!["focused", "nearby"].includes(mode)) return;
+    contextMode = mode;
+
+    const controls = chatPanel.querySelectorAll(`.${NS}-context-btn`);
+    controls.forEach((btn) => {
+      const active = btn.dataset.context === mode;
+      btn.classList.toggle(`${NS}-context-btn-active`, active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    saveSettings();
   }
 
   // ── Annotation popover ─────────────────────────────────────
@@ -633,8 +669,10 @@
     popover.appendChild(actions);
 
     const r = btn.getBoundingClientRect();
-    popover.style.top = (r.bottom + 6) + "px";
-    popover.style.right = Math.max(8, window.innerWidth - r.right) + "px";
+    const top = clamp(r.bottom + 6, 8, Math.max(8, window.innerHeight - 120));
+    const right = clamp(window.innerWidth - r.right, 8, Math.max(8, window.innerWidth - 248));
+    popover.style.top = top + "px";
+    popover.style.right = right + "px";
 
     document.body.appendChild(popover);
     activePopover = popover;
@@ -694,6 +732,16 @@
             rows="2"
             placeholder="Describe what to change for the selected area..."
           ></textarea>
+          <div class="${NS}-preset-row">
+            ${PRESET_TASKS.map((task) => `<button class="${NS}-preset-btn" data-preset="${encodeURIComponent(task)}">${task}</button>`).join("")}
+          </div>
+        </div>
+        <div class="${NS}-context-row">
+          <span class="${NS}-context-label">Context</span>
+          <div class="${NS}-context-switch" role="group" aria-label="Context mode">
+            <button class="${NS}-context-btn ${NS}-context-btn-active" data-context="focused" aria-pressed="true">Focused</button>
+            <button class="${NS}-context-btn" data-context="nearby" aria-pressed="false">Nearby</button>
+          </div>
         </div>
         <div class="${NS}-target-row">
           <span class="${NS}-target-label">Target AI</span>
@@ -702,6 +750,7 @@
             <button class="${NS}-target-btn" data-target="claude" aria-pressed="false">Claude</button>
             <button class="${NS}-target-btn" data-target="cursor" aria-pressed="false">Cursor</button>
             <button class="${NS}-target-btn" data-target="json" aria-pressed="false">JSON</button>
+            <button class="${NS}-target-btn" data-target="selector" aria-pressed="false">Selectors</button>
           </div>
         </div>
         <div class="${NS}-shortcuts">
@@ -712,6 +761,9 @@
           <span><kbd>\u2318C</kbd> Copy</span>
           <span><kbd>\u2318Z</kbd> Undo</span>
           <span><kbd>Esc</kbd> Clear</span>
+        </div>
+        <div class="${NS}-secondary-actions">
+          <button class="${NS}-secondary-btn" data-action="snapshot" disabled>Snapshot</button>
         </div>
         <button class="${NS}-copy-btn" disabled>Copy for Codex</button>
       </div>
@@ -728,14 +780,31 @@
     chatPanel.querySelector(`.${NS}-prompt-input`).addEventListener("input", (e) => {
       updateGlobalInstruction(e.target.value);
     });
+    chatPanel.querySelectorAll(`.${NS}-preset-btn`).forEach((btn) => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const value = decodeURIComponent(btn.dataset.preset);
+        const input = chatPanel.querySelector(`.${NS}-prompt-input`);
+        input.value = value;
+        updateGlobalInstruction(value);
+      };
+    });
+    chatPanel.querySelectorAll(`.${NS}-context-btn`).forEach((btn) => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        setContextMode(btn.dataset.context);
+      };
+    });
     chatPanel.querySelectorAll(`.${NS}-target-btn`).forEach((btn) => {
       btn.onclick = (e) => {
         e.stopPropagation();
         setPromptTarget(btn.dataset.target);
       };
     });
+    chatPanel.querySelector('[data-action="snapshot"]').onclick = () => exportSnapshot();
     chatPanel.querySelector(`.${NS}-prompt-input`).value = globalInstruction;
     setExportMode(exportMode);
+    setContextMode(contextMode);
     setPromptTarget(promptTarget);
 
     chatPanel.querySelector('[data-action="minimize"]').onclick = toggleMinimize;
@@ -804,11 +873,13 @@
   function updateTags() {
     const container = chatPanel.querySelector(`.${NS}-chat-tags`);
     const copyBtn = chatPanel.querySelector(`.${NS}-copy-btn`);
+    const snapshotBtn = chatPanel.querySelector('[data-action="snapshot"]');
     container.innerHTML = "";
 
     if (selectedElements.length > 0) {
       container.classList.remove(`${NS}-hidden`);
       copyBtn.disabled = false;
+      if (snapshotBtn) snapshotBtn.disabled = false;
 
       for (let i = 0; i < selectedElements.length; i++) {
         const el = selectedElements[i];
@@ -838,6 +909,7 @@
     } else {
       container.classList.add(`${NS}-hidden`);
       copyBtn.disabled = true;
+      if (snapshotBtn) snapshotBtn.disabled = true;
     }
   }
 
@@ -866,10 +938,27 @@
   function buildPromptText() {
     if (selectedElements.length === 0) return "";
 
+    if (promptTarget === "selector") return buildSelectorPrompt();
     if (promptTarget === "json") return buildJsonPrompt();
     if (promptTarget === "claude") return buildClaudePrompt();
     if (promptTarget === "cursor") return buildCursorPrompt();
     return buildCodexPrompt();
+  }
+
+  function buildSelectorPrompt() {
+    const lines = [
+      `Task: ${globalInstruction || "Update the selected UI region."}`,
+      `Page: ${location.pathname}`,
+      `Context: ${contextMode}`,
+      "",
+      "Selectors",
+    ];
+    buildSelectedElementObjects().forEach((ctx) => {
+      lines.push(`${ctx.index}. ${ctx.selector || ctx.label}`);
+      if (ctx.contextLabel) lines.push(`   nearby: ${ctx.contextLabel} (${ctx.contextSelector})`);
+      if (ctx.instruction) lines.push(`   instruction: ${ctx.instruction}`);
+    });
+    return lines.join("\n");
   }
 
   function buildJsonPrompt() {
@@ -879,6 +968,7 @@
         path: location.pathname,
         exportMode,
         target: promptTarget,
+        contextMode,
       },
       selectedElements: buildSelectedElementObjects(),
       implementationNotes: [
@@ -965,6 +1055,7 @@
     buildSelectedElementObjects().forEach((ctx) => {
       lines.push(`${ctx.index}. ${ctx.label} <${ctx.tag}>`);
       if (ctx.selector) lines.push(`   selector: ${ctx.selector}`);
+      if (ctx.contextLabel) lines.push(`   nearby: ${ctx.contextLabel} (${ctx.contextSelector})`);
       if (ctx.source) lines.push(`   source: ${ctx.source}`);
       if (ctx.react) lines.push(`   react: ${ctx.react}`);
       if (ctx.classes.length) lines.push(`   classes: ${ctx.classes.join(" ")}`);
@@ -983,6 +1074,7 @@
       const ctx = buildElementContext(el, i + 1);
       const aiId = el.getAttribute(AI_ID);
       const note = annotations.get(aiId);
+      const nearbyContext = contextMode === "nearby" ? findNearbyContext(el) : null;
       const result = {
         index: i + 1,
         label: elementLabel(el),
@@ -994,6 +1086,12 @@
         instruction: note || null,
       };
 
+      if (nearbyContext) {
+        result.contextLabel = nearbyContext.label;
+        result.contextSelector = nearbyContext.selector;
+        result.contextTag = nearbyContext.tag;
+      }
+
       if (exportMode === "full") {
         result.text = ctx.text || "";
         result.dataAttrs = ctx.dataAttrs;
@@ -1002,6 +1100,39 @@
 
       return result;
     });
+  }
+
+  function findNearbyContext(el) {
+    let cur = el.parentElement;
+    while (cur && cur !== document.body && cur !== document.documentElement) {
+      if (isEditorElement(cur)) {
+        cur = cur.parentElement;
+        continue;
+      }
+      if (isContextCandidate(cur)) {
+        return {
+          label: elementLabel(cur),
+          selector: buildSelector(cur),
+          tag: cur.tagName.toLowerCase(),
+        };
+      }
+      cur = cur.parentElement;
+    }
+    return null;
+  }
+
+  function isContextCandidate(el) {
+    if (!el || !el.tagName) return false;
+    const tag = el.tagName.toLowerCase();
+    if (["section", "article", "main", "aside", "nav", "header", "footer", "form"].includes(tag)) {
+      return true;
+    }
+    const role = el.getAttribute("role") || "";
+    if (["region", "dialog", "banner", "complementary", "navigation", "main"].includes(role)) {
+      return true;
+    }
+    const hint = `${el.id} ${el.className || ""}`.toLowerCase();
+    return /(section|container|card|panel|hero|sidebar|toolbar|header|footer|content)/.test(hint);
   }
 
   function writeToClipboard(text) {
@@ -1020,6 +1151,81 @@
     ta.focus(); ta.select();
     try { document.execCommand("copy"); } catch (_) {}
     ta.remove();
+  }
+
+  async function exportSnapshot() {
+    if (selectedElements.length === 0) return;
+    try {
+      const markup = buildSnapshotMarkup();
+      const width = 960;
+      const height = Math.max(240, selectedElements.length * 220);
+      const svg = [
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">`,
+        `<foreignObject width="100%" height="100%">`,
+        `<div xmlns="http://www.w3.org/1999/xhtml">${markup}</div>`,
+        `</foreignObject>`,
+        `</svg>`,
+      ].join("");
+
+      const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `selector-snapshot-${Date.now()}.svg`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showCopyFeedback("Snapshot exported");
+    } catch (_) {
+      showCopyFeedback("Snapshot unavailable");
+    }
+  }
+
+  function buildSnapshotMarkup() {
+    const cards = selectedElements.map((el, i) => {
+      const clone = el.cloneNode(true);
+      inlineComputedStyles(el, clone);
+      const wrapper = document.createElement("div");
+      wrapper.appendChild(clone);
+      return `
+        <section style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:20px;margin:0 0 18px;">
+          <div style="font:600 14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111;margin:0 0 12px;">
+            ${escapeHtml(`${i + 1}. ${elementLabel(el)}`)}
+          </div>
+          <div style="overflow:hidden;">${wrapper.innerHTML}</div>
+        </section>
+      `;
+    }).join("");
+
+    return `
+      <div style="background:#f3f4f6;padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <div style="font-size:20px;font-weight:700;color:#111;margin-bottom:6px;">Selector Snapshot</div>
+        <div style="font-size:13px;color:#4b5563;margin-bottom:18px;">${escapeHtml(globalInstruction || "Update the selected UI region.")}</div>
+        ${cards}
+      </div>
+    `;
+  }
+
+  function inlineComputedStyles(source, target) {
+    if (!source || !target || source.nodeType !== 1 || target.nodeType !== 1) return;
+    const computed = getComputedStyle(source);
+    const styleText = Array.from(computed).map((prop) => `${prop}:${computed.getPropertyValue(prop)};`).join("");
+    target.setAttribute("style", styleText);
+    const sourceChildren = Array.from(source.children);
+    const targetChildren = Array.from(target.children);
+    for (let i = 0; i < sourceChildren.length; i++) {
+      inlineComputedStyles(sourceChildren[i], targetChildren[i]);
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   // ── React debug info (dev mode only) ──────────────────────

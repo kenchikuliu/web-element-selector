@@ -28,38 +28,48 @@ Open any web page, click the **Selector** bookmark.
 | **← / →** | Navigate to previous / next sibling |
 | **✎ button** | Add per-element instruction |
 | **Task box** | Add one overall request for the selected area |
+| **Preset tasks** | Fill common UI improvement requests instantly |
+| **Focused / Nearby** | Export only the selected node or include nearby container context |
 | **Target AI** | Switch prompt format for Codex / Claude / Cursor / JSON |
+| **Selectors** | Copy the smallest selector-first export |
+| **Snapshot** | Export a best-effort SVG snapshot of the selected region |
 | **Safe / Full** | Toggle export detail level |
 | **⌘C** | Copy prompt to clipboard |
 | **⌘Z** | Undo last selection change |
 | **Space** | Pause / resume selecting |
 | **Esc** | Clear selection |
 
-The copied prompt is formatted for AI coding tools with a top-level task, page context, selected element targets, and implementation notes. You can switch prompt shape for Codex, Claude Code, Cursor, or a machine-readable JSON export. The picker also remembers your last export mode, target AI, and task text. `Full` mode also includes text, truncated HTML, and `data-*` attributes.
+The copied prompt is formatted for AI coding tools with a top-level task, page context, selected element targets, and implementation notes. You can switch prompt shape for Codex, Claude Code, Cursor, selector-only output, or a machine-readable JSON export. The picker also remembers your last export mode, context mode, target AI, and task text. `Full` mode also includes text, truncated HTML, and `data-*` attributes.
 
 ## Example output
 
-```
-Page: /dashboard
+```text
+Task
+Optimize this area for mobile.
+
+Page Context
+- Path: /dashboard
+- Target AI: Codex
+- Export mode: safe
+- Privacy: text, html, and data-* attributes are omitted.
+
+Selected Elements
+Use these exact targets when making changes:
 
 1. .hero-title <h1>
    selector: body > main > section > h1
+   nearby: section "Dashboard hero" (body > main > section)
    source: src/components/Hero.tsx:12
    react: Layout › Hero
-   text: "Welcome to the Dashboard"
-   html: <h1 class="hero-title">Welcome to the Dashboard</h1>
+   classes: hero-title
    instruction: Make this red and larger
-
-2. .sidebar <nav>
-   selector: body > aside > nav
-   text: "Home Settings Profile Logout"
-   html: <nav class="sidebar">…
-   instruction: Add an "Analytics" link after "Settings"
 ```
 
 ## Privacy
 
 `Safe` mode is the default because copied prompts often get pasted into third-party AI tools. Use `Full` only when you intentionally want to include visible text, truncated HTML, and `data-*` attributes from the page.
+
+The `Snapshot` export is best-effort. It generates an SVG preview of the selected elements and works best on ordinary DOM content without cross-origin assets.
 
 ## How it works
 

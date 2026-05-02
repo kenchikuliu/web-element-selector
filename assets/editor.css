@@ -378,6 +378,78 @@
   color: #aaa;
 }
 
+/* ── Presets ─────────────────────────────────────────────── */
+.ai-editor-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.ai-editor-preset-btn {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  font-size: 10px;
+  border-radius: 999px;
+  padding: 4px 8px;
+  transition: border-color 120ms, color 120ms, background 120ms;
+}
+
+.ai-editor-preset-btn:hover {
+  color: #111;
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+/* ── Context ─────────────────────────────────────────────── */
+.ai-editor-context-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px 2px;
+}
+
+.ai-editor-context-label {
+  font-size: 10px;
+  color: #777;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.ai-editor-context-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px;
+  background: #f3f3f3;
+  border: 1px solid #e7e7e7;
+  border-radius: 999px;
+}
+
+.ai-editor-context-btn {
+  border: none;
+  background: transparent;
+  color: #777;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 4px 8px;
+  transition: background 120ms, color 120ms;
+}
+
+.ai-editor-context-btn:hover {
+  color: #333;
+}
+
+.ai-editor-context-btn.ai-editor-context-btn-active {
+  background: #111;
+  color: #fff;
+}
+
 /* ── Target AI ───────────────────────────────────────────── */
 .ai-editor-target-row {
   display: flex;
@@ -397,6 +469,8 @@
 .ai-editor-target-switch {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 4px;
   padding: 2px;
   background: #f3f3f3;
@@ -423,6 +497,37 @@
 .ai-editor-target-btn.ai-editor-target-btn-active {
   background: #111;
   color: #fff;
+}
+
+/* ── Secondary actions ───────────────────────────────────── */
+.ai-editor-secondary-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 8px 0;
+}
+
+.ai-editor-secondary-btn {
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  font-size: 11px;
+  border-radius: 8px;
+  padding: 6px 10px;
+  transition: border-color 120ms, color 120ms, background 120ms;
+}
+
+.ai-editor-secondary-btn:hover {
+  color: #111;
+  border-color: #bbb;
+  background: #f8fafc;
+}
+
+.ai-editor-secondary-btn:disabled {
+  color: #aaa;
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  cursor: default;
 }
 
 /* ── Tags ────────────────────────────────────────────────── */
