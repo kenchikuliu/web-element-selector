@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.0.0 - 2026-05-03
+
+Chrome Web Store submission kit release.
+
+### Added
+
+- `docs/chrome-web-store/` with reusable store listing copy
+- Store privacy wording and permissions explanation
+- Screenshot ordering and caption guidance for the Chrome Web Store
+- Minimal submission checklist for store upload flow
+
+### Improved
+
+- Project now has a documented path from repo state to store-ready listing material
+
 ## v1.9.0 - 2026-05-03
 
 Social preview release.
