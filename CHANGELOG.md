@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.0.1 - 2026-05-03
+
+Documentation follow-up release.
+
+### Added
+
+- `RELEASE_NOTES_v1.0.0.md` with GitHub release copy for the initial launch
+- `TESTING.md` with a practical real-page validation checklist
+
 ## v1.0.0 - 2026-05-03
 
 Initial release of the enhanced bookmarklet workflow for AI-assisted UI editing.
