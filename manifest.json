@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Web Element Selector",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Visually select page regions, write a task, and copy a Codex-ready prompt.",
   "action": {
     "default_title": "Toggle Web Element Selector",
@@ -14,6 +14,7 @@
   "background": {
     "service_worker": "background.js"
   },
+  "options_page": "options.html",
   "icons": {
     "16": "assets/icons/icon-16.png",
     "32": "assets/icons/icon-32.png",

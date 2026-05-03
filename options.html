@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Element Selector Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">Web Element Selector</div>
+      <h1>Default launch settings</h1>
+      <p>Choose the defaults that should appear every time Selector opens on a page. Page-local changes made inside the picker still persist per site.</p>
+    </section>
+
+    <section class="panel">
+      <div class="field">
+        <label for="prompt-target">Default Target AI</label>
+        <select id="prompt-target">
+          <option value="codex">Codex</option>
+          <option value="claude">Claude Code</option>
+          <option value="cursor">Cursor</option>
+          <option value="json">JSON</option>
+          <option value="selector">Selectors</option>
+        </select>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label for="export-mode">Default Export Mode</label>
+          <select id="export-mode">
+            <option value="safe">Safe</option>
+            <option value="full">Full</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="context-mode">Default Context Mode</label>
+          <select id="context-mode">
+            <option value="focused">Focused</option>
+            <option value="nearby">Nearby</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="global-instruction">Default Task</label>
+        <textarea id="global-instruction" rows="4" placeholder="Example: Improve the visual hierarchy and spacing in this section."></textarea>
+      </div>
+
+      <div class="footer">
+        <button class="secondary" id="reset-btn" type="button">Reset defaults</button>
+        <button class="primary" id="save-btn" type="button">Save settings</button>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

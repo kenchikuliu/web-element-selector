@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.6.0 - 2026-05-03
+
+Configurable defaults release.
+
+### Added
+
+- Dedicated `Options` page for default Target AI, export mode, context mode, and task text
+- Popup entry point for opening settings
+
+### Improved
+
+- Injected picker now receives extension-level defaults before page-local settings are applied
+- Default launch behavior can be tuned without editing code
+
 ## v1.5.0 - 2026-05-03
 
 Popup productization release.

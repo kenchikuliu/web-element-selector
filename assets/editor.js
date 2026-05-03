@@ -15,6 +15,7 @@
   const NS = "ai-editor";
   const AI_ID = "data-ai-id";
   const STORAGE_KEY = "ai-editor-settings";
+  const DEFAULTS_KEY = "__AI_SELECTOR_DEFAULTS__";
   const PRESET_TASKS = [
     "Polish this section visually.",
     "Optimize this area for mobile.",
@@ -160,6 +161,22 @@
 
   function loadSettings() {
     try {
+      const defaults = window[DEFAULTS_KEY];
+      if (defaults) {
+        if (defaults.exportMode === "safe" || defaults.exportMode === "full") {
+          exportMode = defaults.exportMode;
+        }
+        if (["codex", "claude", "cursor", "json", "selector"].includes(defaults.promptTarget)) {
+          promptTarget = defaults.promptTarget;
+        }
+        if (defaults.contextMode === "focused" || defaults.contextMode === "nearby") {
+          contextMode = defaults.contextMode;
+        }
+        if (typeof defaults.globalInstruction === "string") {
+          globalInstruction = defaults.globalInstruction;
+        }
+      }
+
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw);

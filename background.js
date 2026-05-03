@@ -8,11 +8,47 @@ const RESTRICTED_PROTOCOLS = [
   "view-source:"
 ];
 
+const DEFAULT_OPTIONS = {
+  exportMode: "safe",
+  promptTarget: "codex",
+  contextMode: "focused",
+  globalInstruction: ""
+};
+
+function normalizeOptions(raw) {
+  const options = { ...DEFAULT_OPTIONS };
+  if (raw?.exportMode === "safe" || raw?.exportMode === "full") {
+    options.exportMode = raw.exportMode;
+  }
+  if (["codex", "claude", "cursor", "json", "selector"].includes(raw?.promptTarget)) {
+    options.promptTarget = raw.promptTarget;
+  }
+  if (raw?.contextMode === "focused" || raw?.contextMode === "nearby") {
+    options.contextMode = raw.contextMode;
+  }
+  if (typeof raw?.globalInstruction === "string") {
+    options.globalInstruction = raw.globalInstruction;
+  }
+  return options;
+}
+
 async function injectSelector(tab) {
   if (!tab.id || !tab.url) return;
   if (RESTRICTED_PROTOCOLS.some((protocol) => tab.url.startsWith(protocol))) return;
 
   try {
+    const stored = await chrome.storage.local.get(["options"]);
+    const options = normalizeOptions(stored.options);
+
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      world: "MAIN",
+      func: (defaults) => {
+        window.__AI_SELECTOR_DEFAULTS__ = defaults;
+      },
+      args: [options]
+    });
+
     await chrome.scripting.insertCSS({
       target: { tabId: tab.id },
       files: ["assets/editor.css"]
@@ -67,6 +103,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "get-last-launch") {
     chrome.storage.local.get(["lastLaunch"], (result) => {
       sendResponse({ ok: true, lastLaunch: result.lastLaunch || null });
+    });
+    return true;
+  }
+  if (message?.type === "get-options") {
+    chrome.storage.local.get(["options"], (result) => {
+      sendResponse({ ok: true, options: normalizeOptions(result.options) });
+    });
+    return true;
+  }
+  if (message?.type === "set-options") {
+    const options = normalizeOptions(message.options);
+    chrome.storage.local.set({ options }, () => {
+      sendResponse({ ok: !chrome.runtime.lastError, options });
     });
     return true;
   }
