@@ -23,8 +23,19 @@ async function injectSelector(tab) {
       files: ["assets/editor.js"],
       world: "MAIN"
     });
+
+    await chrome.storage.local.set({
+      lastLaunch: {
+        title: tab.title || "",
+        url: tab.url,
+        at: Date.now()
+      }
+    });
+
+    return true;
   } catch (error) {
     console.error("Web Element Selector injection failed:", error);
+    return false;
   }
 }
 
@@ -35,8 +46,8 @@ chrome.action.onClicked.addListener(async (tab) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "inject-selector") {
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-      await injectSelector(tabs[0]);
-      sendResponse({ ok: true });
+      const ok = await injectSelector(tabs[0]);
+      sendResponse({ ok });
     });
     return true;
   }
@@ -50,6 +61,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         url: tab?.url || "",
         title: tab?.title || ""
       });
+    });
+    return true;
+  }
+  if (message?.type === "get-last-launch") {
+    chrome.storage.local.get(["lastLaunch"], (result) => {
+      sendResponse({ ok: true, lastLaunch: result.lastLaunch || null });
     });
     return true;
   }

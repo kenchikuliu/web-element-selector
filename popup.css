@@ -58,6 +58,10 @@ h1 {
   margin-bottom: 16px;
 }
 
+.card.compact {
+  padding: 12px 14px;
+}
+
 .label {
   margin-bottom: 8px;
   font-size: 11px;
@@ -97,6 +101,17 @@ h1 {
   color: #86efac;
 }
 
+.meta-line {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #f0f0f2;
+}
+
+.meta-line.subtle {
+  margin-top: 6px;
+  color: #8f8f95;
+}
+
 .primary {
   width: 100%;
   border: 0;
@@ -121,6 +136,53 @@ h1 {
 .primary:disabled {
   cursor: not-allowed;
   opacity: 0.45;
+}
+
+.steps {
+  margin: 0;
+  padding-left: 18px;
+  color: #d7d7db;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.steps li + li {
+  margin-top: 4px;
+}
+
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.shortcut-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.shortcut-grid span {
+  font-size: 12px;
+  color: #b7b7bc;
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 3px 7px;
+  border-radius: 8px;
+  background: #f3f3f4;
+  color: #111;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .actions {

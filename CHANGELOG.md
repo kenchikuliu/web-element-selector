@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.5.0 - 2026-05-03
+
+Popup productization release.
+
+### Added
+
+- Last-launch activity in the popup using `chrome.storage.local`
+- Built-in usage steps and shortcuts guide inside the popup
+
+### Improved
+
+- Popup status now better explains restricted pages and launch results
+- Launches are recorded so the extension feels stateful across uses
+
 ## v1.4.0 - 2026-05-03
 
 Popup workflow release.
