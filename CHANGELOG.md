@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.1.0 - 2026-05-03
+
+Extension packaging release.
+
+### Added
+
+- Chrome / Edge Manifest V3 extension support via `manifest.json` and `background.js`
+- One-click toolbar launch for Selector without relying on a bookmarklet
+- `dist/selector-extension-v1.0.0.zip` for direct distribution and manual install
+
+### Improved
+
+- The injected picker now toggles on/off cleanly when launched multiple times
+- README installation guidance now covers both bookmarklet and unpacked extension flows
+
 ## v1.0.1 - 2026-05-03
 
 Documentation follow-up release.
