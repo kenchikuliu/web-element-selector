@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.9.0 - 2026-05-03
+
+Social preview release.
+
+### Added
+
+- Social preview artwork in SVG and PNG formats
+- Open Graph and Twitter metadata on the install page
+
+### Improved
+
+- Shared links to the install page now have a proper large preview image
+- README now includes the social preview asset for repository presentation
+
 ## v1.8.0 - 2026-05-03
 
 Real screenshot showcase release.

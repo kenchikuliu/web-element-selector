@@ -7,6 +7,10 @@ Select page regions. Write a task. Copy a prompt your AI editor can act on.
 [![License](https://img.shields.io/badge/license-MIT-111827)](LICENSE)
 
 <p>
+  <img src="assets/marketing/social-preview.png" alt="Web Element Selector social preview" width="720">
+</p>
+
+<p>
   <a href="https://github.com/kenchikuliu/web-element-selector/releases/latest"><img src="assets/marketing/readme-screenshot-selector.png" alt="Web Element Selector real screenshot"></a>
 </p>
 

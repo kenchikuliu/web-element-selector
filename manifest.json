@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Web Element Selector",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Visually select page regions, write a task, and copy a Codex-ready prompt.",
   "action": {
     "default_title": "Toggle Web Element Selector",
